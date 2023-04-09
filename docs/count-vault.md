@@ -27,3 +27,9 @@ files in a given directory
 #### Things to improve on.
 1. remove all the svg data that is stored in various files.
 2. run through all the files and count code lines, comment lines, and empty lines.
+
+<hr>
+
+See also:
+1. [](./count-wods.md)
+2. [](./count-page.md)
