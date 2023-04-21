@@ -1,56 +1,77 @@
 const fs = require('fs');
 const path = require('path');
 
+
 const countVault = async (dirPath) => {
     try {
         const files = fs.readdirSync(dirPath);
         const mdFiles = files.filter(file => file.endsWith('.md'));
 
         let totalWordCount = 0;
-        let totalCharCount = 0;
-        let pageCount = 0;
+        let largestFile = '';
+        let largestFileWordCount = 0;
 
         for (const file of mdFiles) {
             const filePath = path.join(dirPath, file);
-            const content = fs.readFileSync(filePath, 'utf-8');
+            const content = fs.readFileSync(filePath, 'utf8');
 
-            const wordCount = countWords(content);
+            // Remove content between {{<excalidraw>}} and {{</excalidraw>}} tags
+            const contentWithoutExcalidraw = content.replace(/{{<excalidraw>}}[\s\S]*?{{<\/excalidraw>}}/g, '');
+
+            const wordCount = countWords(contentWithoutExcalidraw);
             totalWordCount += wordCount;
 
-            const charCount = countChars(content);
-            totalCharCount += charCount;
-
-            const _pageCount = PageCount(content);
-            pageCount += _pageCount;
+            // Find the largest file by word count
+            if (wordCount > largestFileWordCount) {
+                largestFileWordCount = wordCount;
+                largestFile = file;
+            }
         }
 
         console.log('total word count', totalWordCount);
-        console.log('total char count', totalCharCount);
-        console.log('total page count', pageCount);
+        console.log('Largest file:', largestFile);
+        console.log('Word count in largest file:', largestFileWordCount);
     } catch (err) {
         console.error('error reading directory', err);
     }
 };
+
+
+
+
 
  const countWords = (content) => {
     const words = content.trim().split(/\s+/);
     return words.length;
 };
 
- const countChars = (content) => {
-    const chars = content.trim().split('');
-    return chars.length;
-};
+ const findLargestFile = (dirPath) => {
+     try {
+         const files = fs.readdirSync(dirPath)
 
- const PageCount = (content) => {
-    const words = content.trim().split(/\s+/);
-    return Math.round(words.length / 500);
- }
+         let largestFileSize = 0;
+         let largestFile = '';
+
+         files.forEach(file => {
+            const filePath = path.join(dirPath, file);
+            const fileStats = fs.statSync(filePath)
+
+             if (fileStats.isDirectory() && fileStats.size > largestFileSize) {
+                 largestFileSize = fileStats.size;
+                 largestFile = file;
+             }
+         })
+
+         return largestFile;
+     } catch (err) {
+         console.error('Error reading directory', err);
+     }
+ };
 
 const validPath = path.join(process.env.HOME || process.env.USERPROFILE, 'Documents', 'random thoughts', 'random-thoughts');
 
 countVault(validPath)
-    .then(() => console.log('Finished counting words and characters'))
+    .then(() => console.log('Finished counting words in vault'))
     .catch((error) => console.error('Error:', error));
 
 /**
