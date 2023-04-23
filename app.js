@@ -40,44 +40,36 @@ const countVault = async (dirPath) => {
 
 
 
- const countWords = (content) => {
+const countWords = (content) => {
     const words = content.trim().split(/\s+/);
     return words.length;
 };
 
- const findLargestFile = (dirPath) => {
-     try {
-         const files = fs.readdirSync(dirPath)
+const findLargestFile = (dirPath) => {
+    try {
+        const files = fs.readdirSync(dirPath)
 
-         let largestFileSize = 0;
-         let largestFile = '';
+        let largestFileSize = 0;
+        let largestFile = '';
 
-         files.forEach(file => {
+        files.forEach(file => {
             const filePath = path.join(dirPath, file);
             const fileStats = fs.statSync(filePath)
 
-             if (fileStats.isDirectory() && fileStats.size > largestFileSize) {
-                 largestFileSize = fileStats.size;
-                 largestFile = file;
-             }
-         })
+            if (fileStats.isDirectory() && fileStats.size > largestFileSize) {
+                largestFileSize = fileStats.size;
+                largestFile = file;
+            }
+        })
 
-         return largestFile;
-     } catch (err) {
-         console.error('Error reading directory', err);
-     }
- };
+        return largestFile;
+    } catch (err) {
+        console.error('Error reading directory', err);
+    }
+};
 
-const validPath = path.join(process.env.HOME || process.env.USERPROFILE, 'Documents', 'random thoughts', 'random-thoughts');
+const validPath = path.join(process.env.HOME || process.env.USERPROFILE, 'Documents', 'book-notes' );
 
 countVault(validPath)
     .then(() => console.log('Finished counting words in vault'))
     .catch((error) => console.error('Error:', error));
-
-/**
- * directory:
- * - random-thoughts
- * output:
-     * total word count 114323
-     * total char count 771163
- */
